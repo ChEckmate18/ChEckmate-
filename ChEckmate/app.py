@@ -258,7 +258,7 @@ LOGO_PATH = BASE_DIR / "assets" / "logo.png"
 
 st.image(str(LOGO_PATH), use_container_width=True)
 
-    category = st.selectbox(
+category = st.selectbox(
         "CONVERSION CATEGORY",
         [
             "Length",
