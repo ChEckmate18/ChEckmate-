@@ -251,10 +251,12 @@ def convert_temperature(value, from_unit, to_unit):
 # SIDEBAR
 # --------------------------------------------------
 
-with st.sidebar:
-    st.image("assets/logo.png", use_container_width=True)
-    st.caption("CHEMICAL ENGINEERING TOOLKIT")
-    st.divider()
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+LOGO_PATH = BASE_DIR / "assets" / "logo.png"
+
+st.image(str(LOGO_PATH), use_container_width=True)
 
     category = st.selectbox(
         "CONVERSION CATEGORY",
