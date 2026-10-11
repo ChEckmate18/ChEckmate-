@@ -1,5 +1,6 @@
 
 import streamlit as st
+from pathlib import Path
 
 # --------------------------------------------------
 # PAGE SETTINGS
@@ -10,6 +11,13 @@ st.set_page_config(
     page_icon="⚗️",
     layout="wide"
 )
+
+# --------------------------------------------------
+# FILE PATHS
+# --------------------------------------------------
+
+BASE_DIR = Path(__file__).resolve().parent
+LOGO_PATH = BASE_DIR / "assets" / "logo.png"
 
 # --------------------------------------------------
 # DESIGN
@@ -94,7 +102,7 @@ div.stButton > button:hover {
 
 # --------------------------------------------------
 # CONVERSION DATA
-# Each factor converts the unit to its SI base unit.
+# Factors convert units to SI base units.
 # --------------------------------------------------
 
 CONVERSIONS = {
@@ -162,12 +170,13 @@ CONVERSIONS = {
     }
 }
 
-# Additional quantities for the SI ↔ English category.
+# --------------------------------------------------
+# SI AND ENGLISH SYSTEM CONVERSIONS
+# --------------------------------------------------
+
 SYSTEM_CONVERSIONS = {
     "Length": CONVERSIONS["Length"],
-
     "Volume": CONVERSIONS["Volume"],
-
     "Mass": CONVERSIONS["Mass"],
 
     "Pressure": {
@@ -198,7 +207,6 @@ SYSTEM_CONVERSIONS = {
     },
 
     "Density": CONVERSIONS["Density"],
-
     "Dynamic Viscosity": CONVERSIONS["Dynamic Viscosity"],
 
     "Volumetric Flow Rate": {
@@ -214,7 +222,6 @@ SYSTEM_CONVERSIONS = {
 
 # --------------------------------------------------
 # TEMPERATURE CONVERSION
-# Convert to Celsius first, then to the target unit.
 # --------------------------------------------------
 
 TEMPERATURE_UNITS = [
@@ -251,14 +258,14 @@ def convert_temperature(value, from_unit, to_unit):
 # SIDEBAR
 # --------------------------------------------------
 
-from pathlib import Path
+with st.sidebar:
+    if LOGO_PATH.is_file():
+        st.image(str(LOGO_PATH), use_container_width=True)
+    else:
+        st.markdown("## ChEckmate! ⚗️")
+        st.caption("Logo not found. Check assets/logo.png.")
 
-BASE_DIR = Path(__file__).resolve().parent
-LOGO_PATH = BASE_DIR / "assets" / "logo.png"
-
-st.image(str(LOGO_PATH), use_container_width=True)
-
-category = st.selectbox(
+    category = st.selectbox(
         "CONVERSION CATEGORY",
         [
             "Length",
@@ -272,20 +279,27 @@ category = st.selectbox(
         ]
     )
 
-        st.divider()
-        st.markdown("### About")
-        st.write(
-            "A unit conversion tool designed for "
-            "Chemical Engineering students."
+    st.divider()
+
+    st.markdown("### About")
+    st.write(
+        "A unit conversion tool designed for "
+        "Chemical Engineering students."
     )
 
     st.caption("Study smart. Convert accurately.")
+
 
 # --------------------------------------------------
 # HEADER
 # --------------------------------------------------
 
-st.image("assets/logo.png", use_container_width=True)
+st.markdown("""
+<div class="hero">
+    <h1>ChEckmate!</h1>
+    <p>Your Chemical Engineering Unit Converter</p>
+</div>
+""", unsafe_allow_html=True)
 
 # --------------------------------------------------
 # CONVERTER TITLE AND DESCRIPTION
@@ -306,14 +320,7 @@ DESCRIPTIONS = {
     )
 }
 
-if category == "Dynamic Viscosity":
-    display_category = "Dynamic Viscosity"
-elif category == "SI ↔ English Units":
-    display_category = "SI ↔ English Units"
-else:
-    display_category = category
-
-st.subheader(f"{display_category} Converter")
+st.subheader(f"{category} Converter")
 st.write(DESCRIPTIONS[category])
 
 # --------------------------------------------------
@@ -389,8 +396,7 @@ if convert_button:
         else:
             conversion_table = CONVERSIONS[category]
 
-        # Convert source value to the SI base unit,
-        # then convert the base value to the target unit.
+        # Convert to the base unit, then to the target unit.
         result = (
             value
             * conversion_table[from_unit]
@@ -406,27 +412,63 @@ if convert_button:
     </div>
     """, unsafe_allow_html=True)
 
-    # Show calculation details
+    # Calculation details
     with st.expander("Show calculation details"):
-        if category == "Temperature":
-            st.write("Temperature conversion uses the appropriate formula.")
 
-            if from_unit == "Celsius (°C)" and to_unit == "Fahrenheit (°F)":
+        if category == "Temperature":
+            st.write(
+                "Temperature conversion uses the appropriate formula."
+            )
+
+            if (
+                from_unit == "Celsius (°C)"
+                and to_unit == "Fahrenheit (°F)"
+            ):
                 st.latex(r"^\circ F = \frac{9}{5}(^\circ C) + 32")
-            elif from_unit == "Fahrenheit (°F)" and to_unit == "Celsius (°C)":
+
+            elif (
+                from_unit == "Fahrenheit (°F)"
+                and to_unit == "Celsius (°C)"
+            ):
                 st.latex(r"^\circ C = \frac{5}{9}(^\circ F - 32)")
-            elif from_unit == "Celsius (°C)" and to_unit == "Kelvin (K)":
+
+            elif (
+                from_unit == "Celsius (°C)"
+                and to_unit == "Kelvin (K)"
+            ):
                 st.latex(r"K = ^\circ C + 273.15")
-            elif from_unit == "Kelvin (K)" and to_unit == "Celsius (°C)":
+
+            elif (
+                from_unit == "Kelvin (K)"
+                and to_unit == "Celsius (°C)"
+            ):
                 st.latex(r"^\circ C = K - 273.15")
+
+            elif (
+                from_unit == "Fahrenheit (°F)"
+                and to_unit == "Kelvin (K)"
+            ):
+                st.latex(
+                    r"K = \frac{5}{9}(^\circ F - 32) + 273.15"
+                )
+
+            elif (
+                from_unit == "Kelvin (K)"
+                and to_unit == "Fahrenheit (°F)"
+            ):
+                st.latex(
+                    r"^\circ F = \frac{9}{5}(K - 273.15) + 32"
+                )
+
             else:
                 st.write(
-                    "The conversion passes through Celsius "
-                    "using the correct temperature relationship."
+                    "The input and target units are the same, "
+                    "so the value does not change."
                 )
 
         else:
             st.write("General conversion formula:")
+
             st.latex(
                 r"\text{Result} = \text{Input}"
                 r"\times \frac{\text{Source factor}}"
@@ -439,7 +481,9 @@ if convert_button:
             st.write(f"Calculated result: {result:.10g}")
 
     # Copy-friendly result
-    st.code(f"{value:.10g} {from_unit} = {result:.10g} {to_unit}")
+    st.code(
+        f"{value:.10g} {from_unit} = {result:.10g} {to_unit}"
+    )
 
 # --------------------------------------------------
 # FOOTER
@@ -450,6 +494,7 @@ st.divider()
 st.caption(
     "ChEckmate! | Chemical Engineering Unit Converter | Student Project"
 )
+
 st.caption(
     "Always verify units and significant figures before using "
     "conversion results in engineering design calculations."
