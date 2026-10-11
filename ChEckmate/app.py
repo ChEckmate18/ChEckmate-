@@ -272,8 +272,7 @@ category = st.selectbox(
         ]
     )
 
-st.divider()
-
+    st.divider()
     st.markdown("### About")
     st.write(
         "A unit conversion tool designed for "
