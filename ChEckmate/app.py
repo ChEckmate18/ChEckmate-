@@ -272,11 +272,12 @@ category = st.selectbox(
         ]
     )
 
-st.divider()
-    st.markdown("### About")
-    st.write(
-        "A unit conversion tool designed for "
-        "Chemical Engineering students."
+    st.divider()
+
+        st.markdown("### About")
+        st.write(
+            "A unit conversion tool designed for "
+            "Chemical Engineering students."
     )
 
     st.caption("Study smart. Convert accurately.")
